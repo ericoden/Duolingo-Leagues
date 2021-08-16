@@ -11,7 +11,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 
 
-# create stochastic
+# create promotion/demotion matrix
 a = 13 / 30 * np.eye(10, k=0) +\
     (7 / 30) * np.eye(10, k=1) + \
     (10 / 30) * np.eye(10, k=-1)
@@ -24,11 +24,13 @@ a[2][1] = 15 / 30
 
 a[9][9] = 23 / 30
 print(np.around(a, 2))
-# get eigenvalues/eigenvectors
-w, v = np.linalg.eig(a)
 
-max_eval = np.argmax(w)
-principle_evec = w[max_eval]
+# get eigenvalues/eigenvectors
+d, p = np.linalg.eig(a)
+
+max_eval = np.argmax(d)
+principle_evec = d[max_eval]
+d = np.diag(d)
 
 # get random initial population
 leagues = ['bronze',
@@ -65,7 +67,7 @@ writer = PillowWriter(fps=25)
 
 fig, ax = plt.subplots()
 fig.set_tight_layout(True)
-plt.xticks(rotation = 45)
+plt.xticks(rotation=45)
 bar = ax.bar(x=leagues, height=x0, color=colors)
 
 
@@ -77,8 +79,7 @@ def init():
 
 
 def animate(i):
-    m = np.linalg.matrix_power(a, i)
-    # m = np.matmul(np.matmul(np.linalg.inv(v), np.diag(np.power(w, i))), v)
+    m = np.matmul(np.matmul(v, w ** i), np.linalg.inv(v))
     x_i = np.matmul(m, x0)
     for j, b in enumerate(bar):
         b.set_height(x_i[j])
